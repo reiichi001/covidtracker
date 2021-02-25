@@ -296,7 +296,7 @@ client.on('message', async message => {
 			},
 		});
 
-		if (beingTracked.UserID) {
+		if (beingTracked !== null || beingTracked.UserID) {
 			if (args.length) {
 				if (args[0] == "None") {
 					// unset the date and set the bool to false
@@ -403,7 +403,7 @@ client.on('message', async message => {
 			},
 		});
 
-		if (beingTracked.UserID) {
+		if (beingTracked !== null || beingTracked.UserID) {
 			if (args.length) {
 				if (args[0] == "None") {
 					// unset the date and set the bool to false
