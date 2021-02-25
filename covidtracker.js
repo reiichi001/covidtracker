@@ -295,8 +295,9 @@ client.on('message', async message => {
 				UserID: message.author.id,
 			},
 		});
+		console.log(beingTracked);
 
-		if (beingTracked !== null || beingTracked.UserID) {
+		if (beingTracked !== null && beingTracked.UserID !== null) {
 			if (args.length) {
 				if (args[0] == "None") {
 					// unset the date and set the bool to false
@@ -381,7 +382,7 @@ client.on('message', async message => {
 				"embed": {
 					"title": `You are not being tracked`,
 					"description": `Your first vaccination shot could not be logged because COVIDTracker isn't tracking you.`
-						+ `Please add yourself first with \`${globalPrefix}secondshot\` and then use this command.`,
+						+ `Please add yourself first with \`${globalPrefix}trackme\` and then use this command.`,
 					"color": CONFIG.embed_color,
 				},
 			});
@@ -403,7 +404,7 @@ client.on('message', async message => {
 			},
 		});
 
-		if (beingTracked !== null || beingTracked.UserID) {
+		if (beingTracked !== null && beingTracked.UserID !== null) {
 			if (args.length) {
 				if (args[0] == "None") {
 					// unset the date and set the bool to false
@@ -486,7 +487,7 @@ client.on('message', async message => {
 				"embed": {
 					"title": `You are not being tracked`,
 					"description": `Your first vaccination shot could not be logged because COVIDTracker isn't tracking you.`
-						+ `Please add yourself first with \`${globalPrefix}secondshot\` and then use this command.`,
+						+ `Please add yourself first with \`${globalPrefix}trackme\` and then use this command.`,
 					"color": CONFIG.embed_color,
 				},
 			});
