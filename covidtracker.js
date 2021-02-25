@@ -122,8 +122,7 @@ client.on('message', async message => {
 			.split(/\s+/u);
 	}
 	else {
-		const slice = message.content.startsWith(globalPrefix) ? globalPrefix.length : 0;
-		args = message.content.slice(slice).split(/\s+/u);
+		return;
 	}
 
 	const command = args.shift().toLowerCase();
