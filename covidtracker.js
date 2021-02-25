@@ -151,11 +151,11 @@ client.on('message', async message => {
 					},
 					{
 						"name": `firstshot`,
-						"value": `You can use \`${globalPrefix}firstshot <date>\` to note when you got your first shot. (Uses MM/DD/YYY)`,
+						"value": `You can use \`${globalPrefix}firstshot date\` to note when you got your first shot. (Uses MM/DD/YYY)`,
 					},
 					{
 						"name": `secondshot`,
-						"value": `You can use \`${globalPrefix}secondshot <date>\` to note when you got your second shot. (Uses MM/DD/YYY)`,
+						"value": `You can use \`${globalPrefix}secondshot date\` to note when you got your second shot. (Uses MM/DD/YYY)`,
 					},
 				],
 				"color": CONFIG.embed_color,
@@ -289,13 +289,70 @@ client.on('message', async message => {
 			args = ["invalid"];
 		}
 
-		if (args.length) {
-			if (args[0] == "None") {
-				// unset the date and set the bool to false
+		const beingTracked = await DBInfo.findOne({
+			where: {
+				ServerID: message.guild.id,
+				UserID: message.author.id,
+			},
+		});
+
+		if (beingTracked.UserID) {
+			if (args.length) {
+				if (args[0] == "None") {
+					// unset the date and set the bool to false
+					const affectedRows = await DBInfo.update(
+						{
+							FirstShotGot: false,
+							FirstShotDate: null,
+						},
+						{
+							where: {
+								ServerID: message.guild.id,
+								UserID: message.author.id,
+							},
+						}
+					);
+
+					if (affectedRows) {
+						message.channel.send({
+							"embed": {
+								"title": `first vaccination unset`,
+								"description": `Your first vaccination shot has been removed.`,
+								"color": CONFIG.embed_color,
+							},
+						});
+						return;
+					}
+				}
+
+				let parsedDate;
+				try {
+					parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
+				}
+				catch (e) {
+					console.err(e);
+					parsedDate = null;
+				}
+
+				if (typeof parsedDate !== "object" || typeof parsedDate === "undefined" || parsedDate === null) {
+					// return an error message
+					console.error(parsedDate);
+					message.channel.send({
+						"embed": {
+							"title": `Invalid Input`,
+							"description": `Your first vaccination shot could not be logged.`
+								+ ` Please make sure to use the command like \`${globalPrefix}secondshot MM/DD/YYYY\` `
+								+ `or \`${globalPrefix}secondshot None\` if you want to remove it.`,
+							"color": CONFIG.embed_color,
+						},
+					});
+					return;
+				}
+
 				const affectedRows = await DBInfo.update(
 					{
-						FirstShotGot: false,
-						FirstShotDate: null,
+						FirstShotGot: true,
+						FirstShotDate: `${parsedDate.toISODate()}`,
 					},
 					{
 						where: {
@@ -308,63 +365,26 @@ client.on('message', async message => {
 				if (affectedRows) {
 					message.channel.send({
 						"embed": {
-							"title": `first vaccination unset`,
-							"description": `Your first vaccination shot has been removed.`,
+							"title": `First vaccination set`,
+							"description": `Your first vaccination shot has been logged!`,
 							"color": CONFIG.embed_color,
 						},
 					});
 					return;
 				}
-			}
-
-			let parsedDate;
-			try {
-				parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
-			}
-			catch (e) {
-				console.err(e);
-				parsedDate = null;
-			}
-
-			if (typeof parsedDate !== "object" || typeof parsedDate === "undefined" || parsedDate === null) {
-				// return an error message
-				console.error(parsedDate);
-				message.channel.send({
-					"embed": {
-						"title": `Invalid Input`,
-						"description": `Your first vaccination shot could not be logged.`
-							+ ` Please make sure to use the command like \`${globalPrefix}secondshot MM/DD/YYYY\` `
-							+ `or \`${globalPrefix}secondshot None\` if you want to remove it.`,
-						"color": CONFIG.embed_color,
-					},
-				});
+				message.channel.send("Something went wrong...");
 				return;
 			}
-
-			const affectedRows = await DBInfo.update(
-				{
-					FirstShotGot: true,
-					FirstShotDate: `${parsedDate.toISODate()}`,
+		}
+		else {
+			message.channel.send({
+				"embed": {
+					"title": `You are not being tracked`,
+					"description": `Your first vaccination shot could not be logged because COVIDTracker isn't tracking you.`
+						+ `Please add yourself first with \`${globalPrefix}secondshot\` and then use this command.`,
+					"color": CONFIG.embed_color,
 				},
-				{
-					where: {
-						ServerID: message.guild.id,
-						UserID: message.author.id,
-					},
-				}
-			);
-
-			if (affectedRows) {
-				message.channel.send({
-					"embed": {
-						"title": `First vaccination set`,
-						"description": `Your first vaccination shot has been logged!`,
-						"color": CONFIG.embed_color,
-					},
-				});
-				return;
-			}
-			message.channel.send("Something went wrong...");
+			});
 			return;
 		}
 	}
@@ -376,13 +396,68 @@ client.on('message', async message => {
 			args = ["invalid"];
 		}
 
-		if (args.length) {
-			if (args[0] == "None") {
-				// unset the date and set the bool to false
+		const beingTracked = await DBInfo.findOne({
+			where: {
+				ServerID: message.guild.id,
+				UserID: message.author.id,
+			},
+		});
+
+		if (beingTracked.UserID) {
+			if (args.length) {
+				if (args[0] == "None") {
+					// unset the date and set the bool to false
+					const affectedRows = await DBInfo.update(
+						{
+							SecondShotGot: false,
+							SecondShotDate: null,
+						},
+						{
+							where: {
+								ServerID: message.guild.id,
+								UserID: message.author.id,
+							},
+						}
+					);
+
+					if (affectedRows) {
+						message.channel.send({
+							"embed": {
+								"title": `Second vaccination unset`,
+								"description": `Your second vaccination shot has been removed.`,
+								"color": CONFIG.embed_color,
+							},
+						});
+						return;
+					}
+				}
+
+				let parsedDate;
+				try {
+					parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
+				}
+				catch (e) {
+					parsedDate = null;
+				}
+
+				if (typeof parsedDate !== "object" || typeof parsedDate === "undefined" || parsedDate === null) {
+					// return an error message
+					message.channel.send({
+						"embed": {
+							"title": `Invalid Input`,
+							"description": `Your second vaccination shot could not be logged.`
+								+ ` Please make sure to use the command like \`${globalPrefix}secondshot MM/DD/YYYY\` `
+								+ `or \`${globalPrefix}secondshot None\` if you want to remove it.`,
+							"color": CONFIG.embed_color,
+						},
+					});
+					return;
+				}
+
 				const affectedRows = await DBInfo.update(
 					{
-						SecondShotGot: false,
-						SecondShotDate: null,
+						SecondShotGot: true,
+						SecondShotDate: `${parsedDate.toISODate()}`,
 					},
 					{
 						where: {
@@ -395,61 +470,26 @@ client.on('message', async message => {
 				if (affectedRows) {
 					message.channel.send({
 						"embed": {
-							"title": `Second vaccination unset`,
-							"description": `Your second vaccination shot has been removed.`,
+							"title": `Second vaccination set`,
+							"description": `Your second vaccination shot has been logged!`,
 							"color": CONFIG.embed_color,
 						},
 					});
 					return;
 				}
-			}
-
-			let parsedDate;
-			try {
-				parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
-			}
-			catch (e) {
-				parsedDate = null;
-			}
-
-			if (typeof parsedDate !== "object" || typeof parsedDate === "undefined" || parsedDate === null) {
-				// return an error message
-				message.channel.send({
-					"embed": {
-						"title": `Invalid Input`,
-						"description": `Your second vaccination shot could not be logged.`
-							+ ` Please make sure to use the command like \`${globalPrefix}secondshot MM/DD/YYYY\` `
-							+ `or \`${globalPrefix}secondshot None\` if you want to remove it.`,
-						"color": CONFIG.embed_color,
-					},
-				});
+				message.channel.send("Something went wrong...");
 				return;
 			}
-
-			const affectedRows = await DBInfo.update(
-				{
-					SecondShotGot: true,
-					SecondShotDate: `${parsedDate.toISODate()}`,
+		}
+		else {
+			message.channel.send({
+				"embed": {
+					"title": `You are not being tracked`,
+					"description": `Your first vaccination shot could not be logged because COVIDTracker isn't tracking you.`
+						+ `Please add yourself first with \`${globalPrefix}secondshot\` and then use this command.`,
+					"color": CONFIG.embed_color,
 				},
-				{
-					where: {
-						ServerID: message.guild.id,
-						UserID: message.author.id,
-					},
-				}
-			);
-
-			if (affectedRows) {
-				message.channel.send({
-					"embed": {
-						"title": `Second vaccination set`,
-						"description": `Your second vaccination shot has been logged!`,
-						"color": CONFIG.embed_color,
-					},
-				});
-				return;
-			}
-			message.channel.send("Something went wrong...");
+			});
 			return;
 		}
 	}
