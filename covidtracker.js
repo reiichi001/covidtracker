@@ -298,11 +298,11 @@ client.on('message', async message => {
 				UserID: message.author.id,
 			},
 		});
-		console.log(beingTracked);
+		// console.log(beingTracked);
 
 		if (beingTracked !== null && beingTracked.UserID !== null) {
 			if (args.length) {
-				if (args[0] == "None") {
+				if (args[0].toLowerCase() === "none") {
 					// unset the date and set the bool to false
 					const affectedRows = await DBInfo.update(
 						{
@@ -331,7 +331,7 @@ client.on('message', async message => {
 
 				let parsedDate;
 				try {
-					parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
+					parsedDate = DateTime.fromFormat(args[0].replace(/<(.*)>/gui, '$1'), "M/d/yyyy");
 				}
 				catch (e) {
 					console.err(e);
@@ -340,12 +340,12 @@ client.on('message', async message => {
 
 				if (typeof parsedDate !== "object" || typeof parsedDate === "undefined" || parsedDate === null) {
 					// return an error message
-					console.error(parsedDate);
+					// console.error(parsedDate);
 					message.channel.send({
 						"embed": {
 							"title": `Invalid Input`,
 							"description": `Your first vaccination shot could not be logged.`
-								+ ` Please make sure to use the command like \`${globalPrefix}secondshot MM/DD/YYYY\` `
+								+ ` Please make sure to use the command like \`${globalPrefix}firstshot MM/DD/YYYY\` `
 								+ `or \`${globalPrefix}secondshot None\` if you want to remove it.`,
 							"color": CONFIG.embed_color,
 						},
@@ -370,7 +370,7 @@ client.on('message', async message => {
 					message.channel.send({
 						"embed": {
 							"title": `First vaccination set`,
-							"description": `Your first vaccination shot has been logged!`,
+							"description": `Your first vaccination shot on ${parsedDate.toFormat("M/dd/yyyy")} has been logged!`,
 							"color": CONFIG.embed_color,
 						},
 					});
@@ -409,7 +409,7 @@ client.on('message', async message => {
 
 		if (beingTracked !== null && beingTracked.UserID !== null) {
 			if (args.length) {
-				if (args[0] == "None") {
+				if (args[0].toLowerCase() == "none") {
 					// unset the date and set the bool to false
 					const affectedRows = await DBInfo.update(
 						{
@@ -475,7 +475,7 @@ client.on('message', async message => {
 					message.channel.send({
 						"embed": {
 							"title": `Second vaccination set`,
-							"description": `Your second vaccination shot has been logged!`,
+							"description": `Your second vaccination shot on ${parsedDate.toFormat("M/dd/yyyy")} has been logged!`,
 							"color": CONFIG.embed_color,
 						},
 					});
