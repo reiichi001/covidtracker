@@ -42,7 +42,7 @@ const DBInfo = sequelize.define('info', {
 		type: Sequelize.STRING,
 		defaultValue: 0,
 		allowNull: false,
-		unique: true,
+		unique: false,
 	},
 	FirstShotGot: {
 		type: Sequelize.BOOLEAN,
@@ -114,7 +114,7 @@ client.on('message', async message => {
 	}
 
 	let args;
-	if (message.guild && message.content.startsWith(globalPrefix)) {
+	if (message.guild && message.content.toLowerCase().startsWith(globalPrefix)) {
 		if (!globalPrefix) {
 			return;
 		}
@@ -196,18 +196,22 @@ client.on('message', async message => {
 	if (command === 'trackme') {
 		console.log("TrackMe command used");
 
-		// set up a default entry for the db
-		const affectedRows = await DBInfo.findOrCreate({
+		// check if this person's already being tracked
+		const checkIfAdded = await DBInfo.findOne({
 			where: {
 				ServerID: message.guild.id,
 				UserID: message.author.id,
 			},
 		});
 
-		// confirm
-		if (affectedRows) {
-			console.log(affectedRows);
-			if (affectedRows.isNewRecord) {
+		// a null result means nothing returned
+		if (checkIfAdded === null) {
+			const affectedRows = await DBInfo.create({
+				ServerID: message.guild.id,
+				UserID: message.author.id,
+			});
+
+			if (affectedRows) {
 				message.channel.send({
 					"embed": {
 						"title": `Added to tracking`,
@@ -217,19 +221,19 @@ client.on('message', async message => {
 				});
 				return;
 			}
-			else {
-				message.channel.send({
-					"embed": {
-						"title": `Already tracking`,
-						"description": `${message.author} is being tracked.`,
-						"color": CONFIG.embed_color,
-					},
-				});
-				return;
-			}
+			message.channel.send("Something went wrong...");
+			return;
 		}
-		message.channel.send("Something went wrong...");
-		return;
+		else {
+			message.channel.send({
+				"embed": {
+					"title": `Already tracking`,
+					"description": `${message.author} is already being tracked.`,
+					"color": CONFIG.embed_color,
+				},
+			});
+			return;
+		}
 	}
 
 	if (command === "untrackme") {
@@ -265,21 +269,20 @@ client.on('message', async message => {
 			}
 			else {
 				console.log("found an entry but couldn't delete it???");
+				message.channel.send("Something went wrong...");
+				return;
 			}
 		}
 		else {
 			message.channel.send({
 				"embed": {
-					"title": `You aren't being tracked`,
-					"description": `${message.author} isn't being tracked.`,
+					"title": `You were not being tracked`,
+					"description": `${message.author} was already not being tracked.`,
 					"color": CONFIG.embed_color,
 				},
 			});
 			return;
 		}
-
-		message.channel.send("Something went wrong...");
-		return;
 	}
 
 	if (command === 'firstshot') {
