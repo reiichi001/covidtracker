@@ -127,6 +127,11 @@ client.on('message', async message => {
 
 	const command = args.shift().toLowerCase();
 
+	if (args[0] && (args[0].includes('<') || args[0].includes('>'))) {
+		message.channel.send("Please do not include <brackets>");
+		return;
+	}
+
 	if (command === 'help') {
 		message.channel.send({
 			"embed": {
@@ -331,7 +336,7 @@ client.on('message', async message => {
 
 				let parsedDate;
 				try {
-					parsedDate = DateTime.fromFormat(args[0].replace(/<(.*)>/gui, '$1'), "M/d/yyyy");
+					parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
 				}
 				catch (e) {
 					console.err(e);
