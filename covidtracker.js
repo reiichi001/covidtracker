@@ -336,11 +336,24 @@ client.on('message', async message => {
 
 				let parsedDate;
 				try {
-					parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
+					if (args[0].length === 10) { // mm/dd/yyyy
+						parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
+					}
+					else if (args[0].length === 8) { // mm/dd/yy
+						parsedDate = DateTime.fromFormat(args[0], "M/d/yy");
+					}
+					else {
+						parsedDate = null;
+					}
 				}
 				catch (e) {
 					console.err(e);
 					parsedDate = null;
+				}
+
+				if (parsedDate > DateTime.now()) {
+					parsedDate = null; // cannot set a shot in the future
+					console.log("Future shot detected");
 				}
 
 				if (typeof parsedDate !== "object" || typeof parsedDate === "undefined" || parsedDate === null) {
@@ -443,10 +456,24 @@ client.on('message', async message => {
 
 				let parsedDate;
 				try {
-					parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
+					if (args[0].length === 10) { // mm/dd/yyyy
+						parsedDate = DateTime.fromFormat(args[0], "M/d/yyyy");
+					}
+					else if (args[0].length === 8) { // mm/dd/yy
+						parsedDate = DateTime.fromFormat(args[0], "M/d/yy");
+					}
+					else {
+						parsedDate = null;
+					}
 				}
 				catch (e) {
+					console.err(e);
 					parsedDate = null;
+				}
+
+				if (parsedDate > DateTime.now()) {
+					parsedDate = null; // cannot set a shot in the future
+					console.log("Future shot detected");
 				}
 
 				if (typeof parsedDate !== "object" || typeof parsedDate === "undefined" || parsedDate === null) {
