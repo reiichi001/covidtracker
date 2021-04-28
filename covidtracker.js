@@ -191,7 +191,7 @@ client.on('message', async message => {
 			"embed": {
 				"title": `Currently tracked people`,
 				"description": `**Here's what I know so far**:\n\n${userStatusList.trim()}`
-				+ `\n\n${safeToMeet ? "This group of people can probably hang out!" : "It may not be safe to hang out yet :<"}`,
+				+ `\n\n${safeToMeet ? "🎉 This group of people can probably hang out! 🎉 :>" : "It may not be safe to hang out yet :<"}`,
 				"color": CONFIG.embed_color,
 			},
 		});
